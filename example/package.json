@@ -1,9 +1,0 @@
-{
-  "name": "React__flappy",
-  "version": "1.0.0",
-  "description": "Game similar to Flappy Bird",
-  "main": "index.js",
-  "repository": "git@github.com:alvarezmauro/React__flappy.git",
-  "author": "Mauro Alvarez <contact@mauroalvarez.com>",
-  "license": "MIT"
-}
