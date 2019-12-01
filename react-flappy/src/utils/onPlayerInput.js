@@ -1,5 +1,6 @@
 export default function onPlayerInput(event, gameInstance) {
   event.preventDefault();
+  // console.log(gameInstance);
   switch (gameInstance.gameMode) {
     case 'prestart': {
       gameInstance.gameMode = 'running';

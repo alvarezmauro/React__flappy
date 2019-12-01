@@ -1,12 +1,13 @@
-import Sprite from './Sprite';
+import Sprite from "./Sprite";
 
 export default class Pipes {
-  constructor(canvas, imgUrl, pipeSpeed) {
+  constructor(canvas, imgUrl, pipeSpeed, scale) {
     this.canvas = canvas;
     this.imgUrl = imgUrl;
     this.pipe = null;
     this.pipeSpeed = pipeSpeed ? pipeSpeed : -2;
     this.items = [];
+    this.scale = scale ? scale : 1;
 
     this.initPipes();
   }
@@ -34,51 +35,48 @@ export default class Pipes {
 
     // Pipes
     pipes = pipes.concat(
-      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 500, 100, 140)
+      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 400, 100, 140)
     );
     pipes = pipes.concat(
-      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 800, 50, 140)
+      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 600, 50, 140)
     );
     pipes = pipes.concat(
-      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 1000, 250, 140)
+      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 800, 250, 140)
     );
     pipes = pipes.concat(
-      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 1200, 150, 120)
+      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 1000, 150, 120)
     );
     pipes = pipes.concat(
-      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 1600, 100, 120)
+      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 1200, 100, 120)
     );
     pipes = pipes.concat(
-      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 1800, 150, 120)
+      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 1400, 150, 120)
     );
     pipes = pipes.concat(
-      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 2000, 200, 120)
+      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 1600, 200, 120)
     );
     pipes = pipes.concat(
-      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 2200, 250, 120)
+      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 1800, 250, 120)
     );
     pipes = pipes.concat(
-      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 2400, 30, 100)
+      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 2000, 30, 100)
     );
     pipes = pipes.concat(
-      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 2700, 300, 100)
+      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 2200, 300, 100)
     );
     pipes = pipes.concat(
-      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 3000, 100, 80)
+      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 2400, 100, 80)
     );
     pipes = pipes.concat(
-      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 3300, 250, 80)
+      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 2600, 250, 80)
     );
     pipes = pipes.concat(
-      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 3600, 50, 60)
+      this.addPipe(canvas, imageUrl, pipeSpeed, pipe, 2800, 50, 60)
     );
 
     // Finish Line
-    let finishLine = new Sprite(
-      canvas,
-      './end.png'
-    );
-    finishLine.axisX = 3900;
+    let finishLine = new Sprite(canvas, "./end.png", this.scale);
+    finishLine.axisX = 3000;
     finishLine.velocityX = pipeSpeed;
     pipes.push(finishLine);
 
@@ -89,17 +87,17 @@ export default class Pipes {
     let pipes = [];
 
     // Top Pipe
-    let topPipe = new Sprite(canvas, imageUrl);
-    topPipe.axisX = axisX;
-    topPipe.axisY = topOfGap - pipe.height;
+    let topPipe = new Sprite(canvas, imageUrl, this.scale);
+    topPipe.axisX = axisX * this.scale;
+    topPipe.axisY = topOfGap * this.scale - pipe.height * this.scale;
     topPipe.velocityX = pipeSpeed;
     pipes.push(topPipe);
 
     // Bottom Pipe
-    let bottomPipe = new Sprite(canvas, imageUrl);
+    let bottomPipe = new Sprite(canvas, imageUrl, this.scale);
     bottomPipe.flipV = true;
-    bottomPipe.axisX = axisX;
-    bottomPipe.axisY = topOfGap + gapWidth;
+    bottomPipe.axisX = axisX * this.scale;
+    bottomPipe.axisY = topOfGap * this.scale + gapWidth * this.scale;
     bottomPipe.velocityX = pipeSpeed;
     pipes.push(bottomPipe);
 

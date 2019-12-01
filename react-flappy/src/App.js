@@ -1,13 +1,15 @@
-import React, { useRef, useEffect } from 'react';
-// import logo from './logo.svg';
-import './App.css';
-import Sprite from './utils/Sprite';
-import Bird from './utils/Bird';
-import Ground from './utils/Ground';
-import Pipes from './utils/Pipes';
-import playerInput from './utils/onPlayerInput';
+import React, { useRef, useEffect, useState } from "react";
+import { withGameData } from "./gameContext";
 
-import useEventListener from './utils/useEventListener';
+// import logo from './logo.svg';
+import "./App.css";
+import Sprite from "./utils/Sprite";
+import Bird from "./utils/Bird";
+import Ground from "./utils/Ground";
+import Pipes from "./utils/Pipes";
+import playerInput from "./utils/onPlayerInput";
+
+import useEventListener from "./utils/useEventListener";
 
 function isGameOver(gameInstance) {
   // Is the bird touching any pipe?
@@ -31,12 +33,12 @@ function isGameOver(gameInstance) {
 }
 
 function displayIntroInstructions(canvas) {
-  const context = canvas.getContext('2d');
-  context.font = '25px Arial';
-  context.fillStyle = 'red';
-  context.textAlign = 'center';
+  const context = canvas.getContext("2d");
+  context.font = "25px Arial";
+  context.fillStyle = "red";
+  context.textAlign = "center";
   context.fillText(
-    'Press, touch or click to start',
+    "Press, touch or click to start",
     canvas.width / 2,
     canvas.height / 4
   );
@@ -49,19 +51,19 @@ function displayGameOver(gameInstance) {
     }
   });
 
-  const context = gameInstance.canvas.getContext('2d');
-  context.font = '30px Arial';
-  context.fillStyle = 'red';
-  context.textAlign = 'center';
-  context.fillText('Game Over', gameInstance.canvas.width / 2, 100);
+  const context = gameInstance.canvas.getContext("2d");
+  context.font = "30px Arial";
+  context.fillStyle = "red";
+  context.textAlign = "center";
+  context.fillText("Game Over", gameInstance.canvas.width / 2, 100);
+  // context.fillText(
+  //   "Score: " + gameInstance.score,
+  //   gameInstance.canvas.width / 2,
+  //   150
+  // );
+  context.font = "20px Arial";
   context.fillText(
-    'Score: ' + gameInstance.score,
-    gameInstance.canvas.width / 2,
-    150
-  );
-  context.font = '20px Arial';
-  context.fillText(
-    'Click, touch, or press to play again',
+    "Click, touch, or press to play again",
     gameInstance.canvas.width / 2,
     300
   );
@@ -74,25 +76,22 @@ function renderFrame(gameInstance) {
     gameInstance.canvas.width,
     gameInstance.canvas.height
   );
-
   switch (gameInstance.gameMode) {
-    case 'prestart': {
+    case "prestart": {
       displayIntroInstructions(gameInstance.canvas);
       break;
     }
-    case 'running': {
+    case "running": {
       // gameInstance.timeGameLastRunning = new Date();
       gameInstance.bird.renderFrame();
       gameInstance.ground.renderFrame();
       gameInstance.pipes.renderFrame();
-
       if (isGameOver(gameInstance)) {
-        gameInstance.gameMode = 'over';
+        gameInstance.gameMode = "over";
       }
-
       break;
     }
-    case 'over': {
+    case "over": {
       gameInstance.bird.renderFrame();
       displayGameOver(gameInstance);
       break;
@@ -100,71 +99,109 @@ function renderFrame(gameInstance) {
   }
 }
 
-const App = () => {
+const App = props => {
   const canvasRef = useRef(null);
-
-  let gameInstance = {
-    canvas: null,
-    FPS: 40,
-    jumpAmount: -10,
-    maxFallSpeed: +10,
-    acceleration: 1,
-    worldSpeed: -2,
-    gameMode: 'prestart',
-    timeGameLastRunning: null,
-    ground: null,
-    pipes: null,
-    bird: null,
-    resetGame: function resetGame() {
-      this.bird.reset();
-      this.pipes.reset();
-    }
-  };
+  const [gameInstance, setGameInstance] = useState();
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    gameInstance.canvas = canvasRef.current;
-    gameInstance.context = gameInstance.canvas.getContext('2d');
+    let gameInstanceDefault = {
+      canvas: null,
+      FPS: 40,
+      jumpAmount: -10,
+      maxFallSpeed: +10,
+      acceleration: 1,
+      worldSpeed: -3,
+      gameMode: "prestart",
+      timeGameLastRunning: null,
+      ground: null,
+      pipes: null,
+      bird: null,
+      scale: null,
+      resetGame: function resetGame() {
+        this.bird.reset();
+        this.pipes.reset();
+      }
+    };
 
-    gameInstance.ground = new Ground(
-      gameInstance.canvas,
-      './bottom.png',
-      gameInstance.worldSpeed
+    gameInstanceDefault.canvas = canvasRef.current;
+    gameInstanceDefault.context = gameInstanceDefault.canvas.getContext("2d");
+
+    const setScale = gameInstanceDefault => {
+      const { canvas } = gameInstanceDefault;
+      let style = {
+        height() {
+          return +getComputedStyle(canvas)
+            .getPropertyValue("height")
+            .slice(0, -2);
+        },
+        width() {
+          return +getComputedStyle(canvas)
+            .getPropertyValue("width")
+            .slice(0, -2);
+        }
+      };
+
+      gameInstanceDefault.scale = window.innerHeight / 480;
+      canvas.setAttribute("width", style.width() * gameInstanceDefault.scale);
+      canvas.setAttribute("height", style.height() * gameInstanceDefault.scale);
+    };
+
+    setScale(gameInstanceDefault);
+
+    gameInstanceDefault.ground = new Ground(
+      gameInstanceDefault.canvas,
+      "./bottom.png",
+      gameInstanceDefault.worldSpeed,
+      gameInstanceDefault.scale
     );
-    gameInstance.pipes = new Pipes(
-      gameInstance.canvas,
-      './pipe.png',
-      gameInstance.worldSpeed
+    
+    gameInstanceDefault.pipes = new Pipes(
+      gameInstanceDefault.canvas,
+      "./pipe.png",
+      gameInstanceDefault.worldSpeed,
+      gameInstanceDefault.scale
     );
-    gameInstance.bird = new Bird(
-      gameInstance.canvas,
-      './bird.png',
-      gameInstance.maxFallSpeed,
-      gameInstance.acceleration
+
+    gameInstanceDefault.bird = new Bird(
+      gameInstanceDefault.canvas,
+      "./bird.png",
+      gameInstanceDefault.maxFallSpeed,
+      gameInstanceDefault.acceleration,
+      gameInstanceDefault.scale
     );
-    setInterval(() => {
-      renderFrame(gameInstance);
-    }, 1000 / gameInstance.FPS);
+
+    setGameInstance(gameInstanceDefault);
   }, []);
 
-  useEventListener('touchstart', event => playerInput(event, gameInstance));
-  useEventListener('mousedown', event => playerInput(event, gameInstance));
-  useEventListener('keydown', event => playerInput(event, gameInstance));
+  useEffect(() => {
+    if (gameInstance && !initialized) {
+      setInitialized(true);
+
+      setInterval(() => {
+        renderFrame(gameInstance);
+      }, 1000 / gameInstance.FPS);
+    }
+  }, [gameInstance]);
+
+  useEventListener("touchstart", event => playerInput(event, gameInstance));
+  useEventListener("mousedown", event => playerInput(event, gameInstance));
+  useEventListener("keydown", event => playerInput(event, gameInstance));
 
   return (
-    <div className='App'>
+    <div className="App">
       <canvas
         ref={canvasRef}
-        id='myCanvas'
-        width='320'
-        height='480'
+        id="myCanvas"
+        width="320"
+        height="480"
         style={{
           background: `url('./back.png')`,
-          backgroundSize: `100%`,
-          height: `100%`
+          backgroundSize: `100%`
         }}
       />
     </div>
   );
 };
 
-export default App;
+export default withGameData(App);

@@ -1,10 +1,11 @@
-import Sprite from './Sprite';
+import Sprite from "./Sprite";
 
 export default class Bird extends Sprite {
-  constructor(canvas, imgUrl, maxFallSpeed, acceleration) {
-    super(canvas, imgUrl);
+  constructor(canvas, imgUrl, maxFallSpeed, acceleration, scale) {
+    super(canvas, imgUrl, scale);
     this.maxFallSpeed = maxFallSpeed ? maxFallSpeed : +10;
     this.acceleration = acceleration ? acceleration : 1;
+    this.scale = scale ? scale : 1;
   }
 
   reset() {
@@ -39,15 +40,15 @@ export default class Bird extends Sprite {
       }
 
       if (
-        this.axisX >= thing.axisX + thing.image.width ||
-        this.axisX + this.image.width <= thing.axisX
+        this.axisX >= thing.axisX + thing.image.width * this.scale ||
+        this.axisX + this.image.width * this.scale <= thing.axisX
       ) {
         return false;
       }
 
       if (
-        this.axisY >= thing.axisY + thing.image.height ||
-        this.axisY + this.image.height <= thing.axisY
+        this.axisY >= thing.axisY + thing.image.height * this.scale ||
+        this.axisY + this.image.height * this.scale <= thing.axisY
       ) {
         return false;
       }
